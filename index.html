@@ -1,0 +1,382 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DALIGO</title>
+<meta name="theme-color" content="#12318A">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:ital,wght@0,400;0,600;0,800;1,600;1,900&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="daligo.css">
+</head>
+<body>
+<header class="top">
+  <div style="width:44px"></div>
+  <div class="logo"><div class="w"><svg width="34" height="22" viewBox="0 0 34 22" aria-hidden="true"><g fill="#FFC31A"><rect x="0" y="2" width="22" height="4" rx="2"/><rect x="7" y="9" width="22" height="4" rx="2"/><rect x="0" y="16" width="16" height="4" rx="2"/></g></svg><span>DALI<b>GO</b></span></div><p>Padala. <b>Pickup. Dalihin.</b></p></div>
+  <div class="av hide" id="avatar"><i id="av">D</i><span id="avn"></span></div>
+</header>
+<main>
+<form id="signup" class="box hide" novalidate>
+    <b>Create a customer account</b>
+    <p class="hint">We check a valid ID before your first booking.</p>
+    <label for="sn">Full name</label><input id="sn" autocomplete="name">
+    <label for="sp">Mobile number</label><input id="sp" type="tel" inputmode="tel" autocomplete="tel">
+    <label for="se">Email</label><input id="se" type="email" autocomplete="email">
+    <label for="spw">Password (6 or more characters)</label><input id="spw" type="password" autocomplete="new-password">
+    <label for="st">Type of ID</label>
+    <select id="st"><option>Driver's license</option><option>PhilSys ID</option><option>Passport</option><option>UMID</option><option>Postal ID</option><option>Voter's ID</option><option>Other government ID</option></select>
+    <label for="sid">Clear photo of your ID</label><input id="sid" type="file" accept="image/*">
+    <label class="chk"><input id="sc" type="checkbox">I agree that Butuan Delivery keeps my ID photo to verify my account. Only the admin can see it.</label>
+    <p class="hint"><a href="privacy.html">Read the privacy policy</a></p>
+    <button class="go" type="submit">Create account</button>
+    <p id="smsg" class="err" role="status"></p>
+  </form>
+<div id="cstate" class="box hide">
+  <p id="cst"></p>
+  <div id="redo" class="hide">
+    <input id="rfile" type="file" accept="image/*">
+    <button class="sm" id="rsend" type="button">Send ID again</button>
+  </div>
+</div>
+<form id="login" class="box hide" novalidate>
+  <b>Sign in</b>
+  <label for="em">Email</label><input id="em" type="email" autocomplete="username">
+  <label for="pw">Password</label><input id="pw" type="password" autocomplete="current-password">
+  <button class="go" type="submit">Sign in</button>
+  <p id="lmsg" class="err" role="status"></p>
+</form>
+<div id="who" class="box hide"><span id="whotxt"></span> <button class="sm" id="out" type="button">Sign out</button></div>
+<div id="app" class="hide">
+  <section id="vhome">
+    <h2 class="greet" id="greet">Good day!</h2>
+    <p class="loc">📍 Butuan City</p>
+    <div class="box">
+      <b class="q">Where do you want to send something?</b>
+      <button class="rt" type="button" id="rtp"><i class="d" style="background:var(--sun)"></i><span><b>Pickup location</b><small id="rtpt">Choose pickup location</small></span></button>
+      <button class="rt" type="button" id="rtd"><i class="d" style="background:var(--navy)"></i><span><b>Drop-off location</b><small id="rtdt">Choose drop-off location</small></span></button>
+      <button class="go" type="button" id="gobook" style="margin-top:14px">Book a rider</button>
+    </div>
+    <h3 class="sec">Quick Categories</h3>
+    <div class="cats">
+      <button type="button" data-cat="Parcel"><span>📦</span>Parcel</button>
+      <button type="button" data-cat="Food"><span>🥡</span>Food</button>
+      <button type="button" data-cat="Documents"><span>📁</span>Documents</button>
+      <button type="button" data-cat="Other"><span>➕</span>Other</button>
+    </div>
+    <h3 class="sec">Your recent deliveries</h3>
+    <div id="recent"></div>
+  </section>
+  <section id="vmine" class="hide"><h2 class="greet" style="margin-bottom:14px">Bookings</h2><div id="mine"></div></section>
+  <section id="vprofile" class="hide">
+    <h2 class="greet" style="margin-bottom:14px">Profile</h2>
+    <div class="box"><b id="pname"></b><p id="pinfo" class="hint"></p><p><span class="st">ID verified</span></p><button class="sm" id="out2" type="button">Sign out</button></div>
+    <p class="hint"><a href="privacy.html">Privacy policy</a></p>
+    <button class="sm" id="del" type="button" style="background:#fff;border:2px solid #E5352B;color:#E5352B">Delete my account</button>
+  </section>
+</div>
+</main>
+<nav id="tabs" class="hide">
+  <button type="button" data-t="home" class="on"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M3 11l9-8 9 8v10H3z"/></svg>Home</button>
+  <button type="button" data-t="mine"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="18" height="16" rx="2"/><path d="M8 3v4M16 3v4M8 14l3 3 5-6"/></svg>Bookings</button>
+  <button type="button" data-t="profile"><svg viewBox="0 0 24 24" aria-hidden="true"><circle cx="12" cy="8" r="4"/><path d="M4 21c0-4 4-6 8-6s8 2 8 6"/></svg>Profile</button>
+</nav>
+<div id="vbook" class="screen hide">
+  <div class="bar"><button type="button" id="back" aria-label="Back">←</button><b>Book a Rider</b><span class="badge">DALIGO</span></div>
+  <form id="f" novalidate>
+    <input id="name" type="hidden"><input id="phone" type="hidden"><input id="cat" type="hidden" value="Parcel">
+    <div class="box">
+      <label for="pu">Pickup location</label><input id="pu" placeholder="Barangay, street, or landmark">
+      <button class="pin" type="button" data-pin="pu">Pin on map 🗺️</button><p class="hint" id="pu-ok"></p>
+      <label for="do">Drop-off location</label><input id="do" placeholder="Barangay, street, or landmark">
+      <button class="pin" type="button" data-pin="do">Pin on map 🗺️</button><p class="hint" id="do-ok"></p>
+    </div>
+    <div class="box">
+      <b class="q">Delivery details</b>
+      <p class="hint" id="catnote"></p>
+      <label for="km">Estimated distance (km)</label><input id="km" type="number" inputmode="decimal" min="1" step="0.5" value="3">
+      <p class="hint" id="kmnote"></p>
+      <label>Item size</label>
+      <div class="chips">
+        <button type="button" data-sel="size" data-i="0">Small<small>Bag</small></button>
+        <button type="button" data-sel="size" data-i="1">Medium<small>Box +₱30</small></button>
+        <button type="button" data-sel="size" data-i="2">Large<small>Sack +₱80</small></button>
+      </div>
+      <label>Payment method</label>
+      <div class="seg">
+        <button type="button" data-sel="pay" data-i="0">Cash</button>
+        <button type="button" data-sel="pay" data-i="1">GCash</button>
+      </div>
+      <select id="size" class="hide"><option value="0">Small (Bag)</option><option value="30">Medium (Box)</option><option value="80">Large (Sack)</option></select>
+      <select id="pay" class="hide"><option>Cash</option><option>GCash</option></select>
+      <label for="note">Rider instructions</label><textarea id="note" rows="2" placeholder="Who to call, what to pick up"></textarea>
+    </div>
+    <div class="foot">
+      <div class="amt">Estimated fare <b id="fare">₱0</b></div>
+      <p class="hint"><i>Final fare will be confirmed by the dispatcher.</i></p>
+      <button class="go" type="submit" style="margin-top:10px">Book a rider</button>
+      <p id="msg" role="status"></p>
+    </div>
+  </form>
+</div>
+<div id="vtrack" class="screen hide">
+  <div class="bar"><button type="button" id="tback" aria-label="Back">←</button><b>Track rider</b><span class="badge">DALIGO</span></div>
+  <div id="tmap"></div>
+  <div class="foot l" id="tsheet"></div>
+</div>
+<div id="mapbox" class="hide">
+  <div id="map"></div>
+  <div id="mapbar">
+    <p id="maptitle">Tap the map to drop a pin</p>
+    <button class="sm" type="button" id="mygps">Use my location</button>
+    <button class="sm" type="button" id="mapok">Confirm pin</button>
+    <button class="pin" type="button" id="mapx" style="grid-column:1/-1;margin:0">Cancel</button>
+  </div>
+</div>
+<div id="toast" class="hide" role="status"></div>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="shared.js"></script>
+<script>
+var cust = null, loaded = false, busy = false;
+function fare(){
+  var km = Math.max(1, parseFloat($("km").value) || 1);
+  return Math.round(CONFIG.baseFare + Math.max(0, km - CONFIG.includedKm) * CONFIG.perKm + parseInt($("size").value, 10));
+}
+function render(){ $("fare").textContent = "₱" + fare(); }
+["km","size"].forEach(function(i){ $(i).addEventListener("input", render); });
+render();
+
+
+function role(){ if (!user) return "none"; if (isAdmin()) return "admin"; if (busy || !loaded) return "loading"; return cust ? "customer" : "staff"; }
+function prefill(){ if (cust){ if (!$("name").value) $("name").value = cust.name; if (!$("phone").value) $("phone").value = cust.phone; } }
+function refresh(){
+  var r = role(), ok = r === "customer" && cust.status === "approved";
+  $("signup").classList.toggle("hide", !!user);
+  var note = r === "staff" || r === "admin" ? "This is a staff account. Use a separate customer account to book." :
+    r === "customer" && cust.status === "pending" ? "Your ID is being checked. You can book as soon as the admin approves it." :
+    r === "customer" && cust.status === "rejected" ? "Your ID was not approved. Send a clearer photo of a valid ID." : "";
+  $("cst").textContent = note;
+  $("cstate").classList.toggle("hide", !note);
+  $("redo").classList.toggle("hide", !(r === "customer" && cust.status === "rejected"));
+  $("app").classList.toggle("hide", !ok);
+  $("tabs").classList.toggle("hide", !ok);
+  $("avatar").classList.toggle("hide", !ok);
+  $("who").classList.toggle("hide", !user || ok);
+  if (!ok){ closeBook(); closeTrack(); }
+  if (ok){
+    prefill();
+    var fn = cust.name.split(" ")[0];
+    $("av").textContent = fn.charAt(0).toUpperCase(); $("avn").textContent = fn; greet(fn);
+    $("pname").textContent = cust.name; $("pinfo").textContent = cust.phone + " · " + cust.email;
+  }
+  if (r === "customer") watchMine(); else stop("mine");
+}
+startAuth(function(u){
+  cust = null; loaded = false;
+  if (u && !isAdmin()) unsubs.me = db.collection("users").doc(u.uid).onSnapshot(function(d){ cust = d.exists ? d.data() : null; loaded = true; refresh(); }, function(){ loaded = true; refresh(); });
+  refresh();
+});
+$("signup").addEventListener("submit", function(e){
+  e.preventDefault();
+  var g = function(i){ return $(i).value.trim(); }, m = $("smsg"), file = $("sid").files[0], photo;
+  if (!g("sn") || !g("sp") || !g("se") || $("spw").value.length < 6 || !file){ m.className = "err"; m.textContent = "Fill in every field, use a password of 6 or more characters, and add a photo of your ID."; return; }
+  if (!$("sc").checked){ m.className = "err"; m.textContent = "Please agree to the ID check first."; return; }
+  busy = true; m.className = "hint"; m.textContent = "Creating your account…";
+  squeeze(file, 1000, 0.7).then(function(url){ photo = url; return auth.createUserWithEmailAndPassword(g("se"), $("spw").value); })
+    .then(function(cr){ return db.collection("users").doc(cr.user.uid).set({ name: g("sn"), phone: g("sp"), email: g("se").toLowerCase(), idType: $("st").value, idPhoto: photo, status: "pending", createdAt: firebase.firestore.FieldValue.serverTimestamp() }); })
+    .then(function(){ m.textContent = ""; $("signup").reset(); })
+    .catch(function(err){ m.className = "err"; m.textContent = err && err.code === "auth/email-already-in-use" ? "That email is already registered. Sign in below." : "Could not create the account. Check your details and internet."; })
+    .then(function(){ busy = false; refresh(); });
+});
+$("rsend").onclick = function(){
+  var f = $("rfile").files[0]; if (!f) return;
+  squeeze(f, 1000, 0.7).then(function(url){ return db.collection("users").doc(user.uid).update({ idPhoto: url, status: "pending" }); })
+    .catch(function(){ $("cst").textContent = "Could not send. Try again."; });
+};
+function watchMine(){
+  if (unsubs.mine) return;
+  var box = $("mine");
+  unsubs.mine = col.where("customerUid", "==", user.uid).onSnapshot(function(sn){
+    var docs = sn.docs.slice().sort(function(a, b){ return ts(b) - ts(a); });
+    draw(box, { forEach: function(fn){ docs.forEach(fn); } }, "customer", "No bookings yet.");
+    var rb = $("recent"); rb.textContent = "";
+    docs.slice(0, 3).forEach(function(d){ rb.appendChild(recentRow(d.data(), d.id)); });
+    if (!docs.length) rb.appendChild(el("p", "No deliveries yet. Book your first rider!", "hint"));
+  }, fail(box));
+}
+// ---- map pins ----
+var pins = { pu: null, do: null }, map = null, marker = null, target = null, temp = null;
+var BUTUAN = [8.9475, 125.5406];
+function setTemp(ll){
+  temp = ll;
+  if (marker) marker.setLatLng(ll); else marker = L.marker(ll).addTo(map);
+}
+function openMap(t){
+  target = t; temp = pins[t];
+  $("mapbox").classList.remove("hide");
+  $("maptitle").textContent = t === "pu" ? "Tap the map to set the pickup spot" : "Tap the map to set the drop-off spot";
+  if (!map){
+    map = L.map("map").setView(BUTUAN, 14);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(map);
+    map.on("click", function(e){ setTemp([e.latlng.lat, e.latlng.lng]); });
+  }
+  if (marker){ map.removeLayer(marker); marker = null; }
+  setTimeout(function(){ map.invalidateSize(); if (temp){ setTemp(temp); map.setView(temp, 16); } }, 50);
+}
+function km2(a, b){
+  var r = Math.PI / 180, dLat = (b[0] - a[0]) * r, dLng = (b[1] - a[1]) * r;
+  var h = Math.sin(dLat / 2) * Math.sin(dLat / 2) + Math.cos(a[0] * r) * Math.cos(b[0] * r) * Math.sin(dLng / 2) * Math.sin(dLng / 2);
+  return 6371 * 2 * Math.atan2(Math.sqrt(h), Math.sqrt(1 - h));
+}
+document.querySelectorAll("[data-pin]").forEach(function(b){ b.onclick = function(){ openMap(b.dataset.pin); }; });
+$("mapx").onclick = function(){ $("mapbox").classList.add("hide"); };
+$("mygps").onclick = function(){
+  if (!navigator.geolocation){ $("maptitle").textContent = "Location is not available on this device."; return; }
+  $("maptitle").textContent = "Finding you…";
+  navigator.geolocation.getCurrentPosition(function(p){
+    var ll = [p.coords.latitude, p.coords.longitude]; setTemp(ll); map.setView(ll, 17); $("maptitle").textContent = "Pin set. Move it by tapping elsewhere.";
+  }, function(){ $("maptitle").textContent = "Could not get your location. Allow location access or tap the map."; });
+};
+$("mapok").onclick = function(){
+  if (!temp){ $("maptitle").textContent = "Tap the map first to drop a pin."; return; }
+  pins[target] = temp;
+  $(target + "-ok").textContent = "Pin saved.";
+  $("mapbox").classList.add("hide");
+  fill(target);
+  if (pins.pu && pins.do){
+    $("km").value = Math.max(1, Math.round(km2(pins.pu, pins.do) * 1.3 * 2) / 2);
+    $("kmnote").textContent = "Distance estimated from your pins: " + $("km").value + " km by road. You can change it.";
+    render();
+  }
+};
+
+var auto = { pu: "", do: "" };
+function fill(t){
+  var ll = pins[t], inp = $(t), note = $(t + "-ok");
+  if (inp.value.trim() && inp.value !== auto[t]) return;   // keep what the customer typed
+  note.textContent = "Pin saved. Finding address…";
+  fetch("https://nominatim.openstreetmap.org/reverse?format=jsonv2&addressdetails=1&accept-language=en&lat=" + ll[0] + "&lon=" + ll[1])
+    .then(function(r){ return r.json(); })
+    .then(function(j){
+      var a = j.address || {};
+      var parts = [[a.house_number, a.road].filter(Boolean).join(" "), a.suburb || a.neighbourhood || a.quarter || a.village, a.city || a.town || a.municipality].filter(Boolean);
+      var txt = parts.join(", ") || j.display_name;
+      if (!txt) throw new Error("none");
+      inp.value = txt; auto[t] = txt;
+      note.textContent = "Pin saved. Address filled in. You can edit it.";
+    })
+    .catch(function(){ note.textContent = "Pin saved. Could not find the address, please type it."; });
+}
+
+// ---- customer ----
+$("f").addEventListener("submit", function(e){
+  e.preventDefault();
+  var v = function(i){ return $(i).value.trim(); };
+  if (!v("name") || !v("phone") || !v("pu") || !v("do")){
+    $("msg").className = "err"; $("msg").textContent = "Fill in your name, number, pickup, and drop-off first."; return;
+  }
+  $("msg").className = ""; $("msg").textContent = "Sending…";
+  var data = { customerUid: user.uid, cat: $("cat").value,
+    name: v("name"), phone: v("phone"), pickup: v("pu"), dropoff: v("do"), km: parseFloat($("km").value) || 1,
+    size: $("size").selectedOptions[0].text, pay: $("pay").value, note: v("note"), fare: fare(),
+    status: "new", riderEmail: "", createdAt: firebase.firestore.FieldValue.serverTimestamp()
+  };
+  if (pins.pu){ data.puLat = pins.pu[0]; data.puLng = pins.pu[1]; }
+  if (pins.do){ data.doLat = pins.do[0]; data.doLng = pins.do[1]; }
+  col.add(data).then(function(ref){
+    $("msg").textContent = ""; $("f").reset(); pins = { pu: null, do: null }; auto = { pu: "", do: "" }; $("pu-ok").textContent = ""; $("do-ok").textContent = ""; $("kmnote").textContent = ""; render(); prefill(); syncChips(); closeBook(); go("mine"); toast("Booking sent. We will assign a rider soon.");
+  }).catch(function(){ $("msg").className = "err"; $("msg").textContent = "Could not send. Check your internet and try again."; });
+});
+// ---- DALIGO screens ----
+function greet(fn){ var h = new Date().getHours(); $("greet").textContent = (h < 12 ? "Good morning" : h < 18 ? "Good afternoon" : "Good evening") + ", " + fn + "!"; }
+function go(t){
+  ["home", "mine", "profile"].forEach(function(x){ $("v" + x).classList.toggle("hide", x !== t); });
+  document.querySelectorAll("#tabs button").forEach(function(b){ b.classList.toggle("on", b.dataset.t === t); });
+  window.scrollTo(0, 0);
+}
+function routeText(){ $("rtpt").textContent = $("pu").value.trim() || "Choose pickup location"; $("rtdt").textContent = $("do").value.trim() || "Choose drop-off location"; }
+function openBook(cat){
+  if (cat) $("cat").value = cat;
+  $("catnote").textContent = "Sending: " + $("cat").value;
+  $("vbook").classList.remove("hide"); document.body.style.overflow = "hidden";
+}
+function closeBook(){ $("vbook").classList.add("hide"); document.body.style.overflow = ""; routeText(); }
+function syncChips(){
+  document.querySelectorAll("[data-sel]").forEach(function(b){ b.classList.toggle("on", $(b.dataset.sel).selectedIndex === +b.dataset.i); });
+}
+function toast(t){ var x = $("toast"); x.textContent = t; x.classList.remove("hide"); setTimeout(function(){ x.classList.add("hide"); }, 3500); }
+function recentRow(b, id){
+  var r = el("div", null, "rc"), l = el("div"), rt = el("div");
+  if (id && (b.status === "assigned" || b.status === "picked_up")){ r.style.cursor = "pointer"; r.onclick = function(){ openTrack(id); }; }
+  l.appendChild(el("b", (b.cat || "Parcel") + " delivery")); l.appendChild(el("p", b.pickup + " → " + b.dropoff, "hint"));
+  rt.style.textAlign = "right"; rt.appendChild(el("b", "₱" + b.fare));
+  var p = el("p"); p.appendChild(el("span", LABEL[b.status] || b.status, "st")); rt.appendChild(p);
+  r.appendChild(l); r.appendChild(rt); return r;
+}
+document.querySelectorAll("[data-sel]").forEach(function(b){ b.onclick = function(){ $(b.dataset.sel).selectedIndex = +b.dataset.i; render(); syncChips(); }; });
+document.querySelectorAll("[data-cat]").forEach(function(b){ b.onclick = function(){ openBook(b.dataset.cat); }; });
+document.querySelectorAll("#tabs button").forEach(function(b){ b.onclick = function(){ go(b.dataset.t); }; });
+$("gobook").onclick = function(){ openBook(); }; $("rtp").onclick = function(){ openBook(); }; $("rtd").onclick = function(){ openBook(); };
+$("back").onclick = closeBook; $("out2").onclick = function(){ auth.signOut(); };
+syncChips();
+// ---- live rider tracking ----
+var tmap = null, tl = {};
+var STEP = { new: "Looking for a rider", assigned: "Rider is on the way", picked_up: "Your item is on its way", delivered: "Delivered" };
+function ic(cls, txt){ return L.divIcon({ html: '<div class="pk ' + cls + '">' + txt + '</div>', className: "", iconSize: [38, 38], iconAnchor: [19, 19] }); }
+function put(k, ll, icon){ if (!ll) return; if (tl[k]) tl[k].setLatLng(ll); else tl[k] = L.marker(ll, { icon: icon }).addTo(tmap); }
+function openTrack(id){
+  $("vtrack").classList.remove("hide"); document.body.style.overflow = "hidden";
+  if (!tmap){
+    tmap = L.map("tmap", { zoomControl: false }).setView(BUTUAN, 14);
+    L.tileLayer("https://tile.openstreetmap.org/{z}/{x}/{y}.png", { maxZoom: 19, attribution: "&copy; OpenStreetMap" }).addTo(tmap);
+  }
+  ["pu", "do", "rd", "ln"].forEach(function(k){ if (tl[k]) tmap.removeLayer(tl[k]); });
+  tl = {}; $("tsheet").textContent = "Loading…";
+  setTimeout(function(){ tmap.invalidateSize(); }, 60);
+  stop("track");
+  unsubs.track = col.doc(id).onSnapshot(function(d){ if (d.exists) drawTrack(d.data()); });
+}
+function closeTrack(){ stop("track"); $("vtrack").classList.add("hide"); if ($("vbook").classList.contains("hide")) document.body.style.overflow = ""; }
+function drawTrack(b){
+  var pu = b.puLat != null ? [b.puLat, b.puLng] : null, dr = b.doLat != null ? [b.doLat, b.doLng] : null, rd = b.riderLat != null ? [b.riderLat, b.riderLng] : null;
+  var active = b.status === "assigned" || b.status === "picked_up";
+  put("pu", pu, ic("y", "P")); put("do", dr, ic("r", "D")); put("rd", active ? rd : null, ic("w", "🛵"));
+  if (pu && dr && !tl.ln) tl.ln = L.polyline([pu, dr], { color: "#2F6FED", weight: 5, opacity: 0.85 }).addTo(tmap);
+  var pts = [pu, dr, active ? rd : null].filter(Boolean);
+  if (pts.length && (!tl.fit || (rd && !tl.fitr))){ tmap.fitBounds(pts, { padding: [50, 50], maxZoom: 16 }); tl.fit = true; if (rd) tl.fitr = true; }
+  var target = b.status === "picked_up" ? dr : pu, eta = (active && rd && target) ? Math.max(1, Math.round(km2(rd, target) * 1.3 / 25 * 60)) : 0;
+  var s = $("tsheet"), top = el("div", null, "trow");
+  s.textContent = "";
+  top.appendChild(el("b", STEP[b.status] || b.status, "tt"));
+  if (eta) top.appendChild(el("span", eta + " min", "eta"));
+  s.appendChild(top);
+  if (active && !rd) s.appendChild(el("p", "Waiting for the rider's location…", "hint"));
+  if (b.status !== "new"){
+    var rr = el("div", null, "trow"), who = el("div");
+    who.appendChild(el("b", b.riderName || "Your rider")); who.appendChild(el("p", "DALIGO Rider", "hint")); rr.appendChild(who);
+    if (b.riderPhone){ var a = el("a", "Call rider", "sm"); a.href = "tel:" + b.riderPhone; rr.appendChild(a); }
+    s.appendChild(rr);
+  }
+  [["Pickup", b.pickup], ["Drop-off", b.dropoff], ["Item", b.size], ["Payment", b.pay]].forEach(function(p){ s.appendChild(el("p", p[0] + ": " + p[1], "tl")); });
+}
+$("tback").onclick = closeTrack;
+$("del").onclick = function(){
+  if (!confirm("Delete your account and your ID photo? This cannot be undone.")) return;
+  var pw = prompt("Enter your password to confirm");
+  if (!pw) return;
+  var uid = user.uid;
+  user.reauthenticateWithCredential(firebase.auth.EmailAuthProvider.credential(user.email, pw))
+    .then(function(){ return db.collection("users").doc(uid).delete(); })
+    .then(function(){ return auth.currentUser.delete(); })
+    .then(function(){ toast("Your account was deleted."); })
+    .catch(function(){ toast("Could not delete. Check your password and try again."); });
+};
+</script>
+</body>
+</html>
